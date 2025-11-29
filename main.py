@@ -22,43 +22,34 @@ from analysis.shap_analysis import SHAPAnalyzer
 def main():
     """主函数"""
     parser = argparse.ArgumentParser("Run machine learning models")
-    parser.add_argument('--model', type=str, default='xgb',
-                        help="specify the model type from: xgb, catboost, lightgbm, rf, mlr, svm, tabpfn, ann (default: xgb)")
-    parser.add_argument('--analysis', type=str, default='none',
-                        help="specify the analysis type: none, correlation, shap, all (default: none)")
-
+    # ... (参数解析保持不变)
     args = parser.parse_args()
+
+    if args.analysis in ['correlation', 'all', 'shap'] or args.model in models_map:
+        base_output_dir = PathConfig.create_base_output_dir()
+    else:
+        base_output_dir = None
 
     # 运行指定的分析
     if args.analysis in ['correlation', 'all']:
         print("开始相关性分析...")
-        correlation_output_dir = r"C:\Users\Administrator\Desktop\Analysis"
-        os.makedirs(correlation_output_dir, exist_ok=True)
+        # 目录直接使用顶层目录
         correlation_analyzer = CorrelationAnalyzer(
             data_path=r"C:\Users\Administrator\Desktop\train.xlsx",
-            output_dir=correlation_output_dir
+            output_dir=base_output_dir  # 传入顶层目录 'result'
         )
         correlation_analyzer.analyze()
 
     if args.analysis in ['shap', 'all']:
         print("开始SHAP分析...")
+        # 目录直接使用顶层目录
         shap_analyzer = SHAPAnalyzer(
             data_path=r"C:\Users\Administrator\Desktop\trainshap.xlsx",
-            output_dir=correlation_output_dir
+            output_dir=base_output_dir  # 传入顶层目录 'result'
         )
         shap_analyzer.analyze()
 
-    # 运行指定的模型
-    models_map = {
-        'xgb': (XGBModel, XGBConfig, 'XGBoost'),
-        'catboost': (CatBoostModel, CatBoostConfig, 'CatBoost'),
-        'lightgbm': (LightGBMModel, LightGBMConfig, 'LightGBM'),
-        'rf': (RFModel, RFConfig, 'RandomForest'),
-        'mlr': (MLRModel, MLRConfig, 'MLR'),
-        'svm': (SVMModel, SVMConfig, 'SVM'),
-        'tabpfn': (TabPFNModel, TabPFNConfig, 'TabPFN'),
-        'ann': (ANNModel, ANNConfig, 'ANN')
-    }
+    # ... (models_map 定义保持不变)
 
     if args.model in models_map:
         model_class, config_class, model_name = models_map[args.model]
@@ -77,7 +68,7 @@ def run_model(model_name, model_class, config_class):
     # 初始化配置
     path_config = PathConfig(model_name)
     model_config = config_class()
-    output_dir = path_config.create_dirs()
+    output_dir = path_config.create_model_dirs()
 
     # 初始化组件
     data_loader = DataLoader(path_config)
