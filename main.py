@@ -19,12 +19,32 @@ from analysis.correlation import CorrelationAnalyzer
 from analysis.shap_analysis import SHAPAnalyzer
 
 
+# ... (imports)
+
 def main():
     """主函数"""
     parser = argparse.ArgumentParser("Run machine learning models")
-    # ... (参数解析保持不变)
+    parser.add_argument('--model', type=str, default='xgb',
+                        help="specify the model type from: xgb, catboost, lightgbm, rf, mlr, svm, tabpfn, ann (default: xgb)")
+    parser.add_argument('--analysis', type=str, default='none',
+                        help="specify the analysis type: none, correlation, shap, all (default: none)")
+
     args = parser.parse_args()
 
+    # === 修改开始：将 models_map 定义提前 ===
+    models_map = {
+        'xgb': (XGBModel, XGBConfig, 'XGBoost'),
+        'catboost': (CatBoostModel, CatBoostConfig, 'CatBoost'),
+        'lightgbm': (LightGBMModel, LightGBMConfig, 'LightGBM'),
+        'rf': (RFModel, RFConfig, 'RandomForest'),
+        'mlr': (MLRModel, MLRConfig, 'MLR'),
+        'svm': (SVMModel, SVMConfig, 'SVM'),
+        'tabpfn': (TabPFNModel, TabPFNConfig, 'TabPFN'),
+        'ann': (ANNModel, ANNConfig, 'ANN')
+    }
+    # === 修改结束 ===
+
+    # 检查是否需要创建基础目录，现在 models_map 已定义
     if args.analysis in ['correlation', 'all', 'shap'] or args.model in models_map:
         base_output_dir = PathConfig.create_base_output_dir()
     else:
@@ -49,14 +69,17 @@ def main():
         )
         shap_analyzer.analyze()
 
-    # ... (models_map 定义保持不变)
-
+    # 运行指定的模型
+    # models_map 已经被定义并上移，这里只需要使用即可。
     if args.model in models_map:
         model_class, config_class, model_name = models_map[args.model]
         run_model(model_name, model_class, config_class)
     else:
         print(f"未知模型: {args.model}")
         print("可用模型: xgb, catboost, lightgbm, rf, mlr, svm, tabpfn, ann")
+
+
+# ... (run_model 和其它函数保持不变)
 
 
 def run_model(model_name, model_class, config_class):
