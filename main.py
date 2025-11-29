@@ -19,19 +19,12 @@ from analysis.correlation import CorrelationAnalyzer
 from analysis.shap_analysis import SHAPAnalyzer
 
 
-# ... (imports)
-
 def main():
     """主函数"""
-    parser = argparse.ArgumentParser("Run machine learning models")
-    parser.add_argument('--model', type=str, default='xgb',
-                        help="specify the model type from: xgb, catboost, lightgbm, rf, mlr, svm, tabpfn, ann (default: xgb)")
-    parser.add_argument('--analysis', type=str, default='none',
-                        help="specify the analysis type: none, correlation, shap, all (default: none)")
+    # ... (参数解析和 models_map 定义保持不变)
 
     args = parser.parse_args()
 
-    # === 修改开始：将 models_map 定义提前 ===
     models_map = {
         'xgb': (XGBModel, XGBConfig, 'XGBoost'),
         'catboost': (CatBoostModel, CatBoostConfig, 'CatBoost'),
@@ -42,9 +35,7 @@ def main():
         'tabpfn': (TabPFNModel, TabPFNConfig, 'TabPFN'),
         'ann': (ANNModel, ANNConfig, 'ANN')
     }
-    # === 修改结束 ===
 
-    # 检查是否需要创建基础目录，现在 models_map 已定义
     if args.analysis in ['correlation', 'all', 'shap'] or args.model in models_map:
         base_output_dir = PathConfig.create_base_output_dir()
     else:
@@ -53,19 +44,17 @@ def main():
     # 运行指定的分析
     if args.analysis in ['correlation', 'all']:
         print("开始相关性分析...")
-        # 目录直接使用顶层目录
         correlation_analyzer = CorrelationAnalyzer(
-            data_path=r"C:\Users\Administrator\Desktop\train.xlsx",
-            output_dir=base_output_dir  # 传入顶层目录 'result'
+            data_path=PathConfig.DATA_PATH, # <== 引用更新为 PathConfig.DATA_PATH
+            output_dir=base_output_dir
         )
         correlation_analyzer.analyze()
 
     if args.analysis in ['shap', 'all']:
         print("开始SHAP分析...")
-        # 目录直接使用顶层目录
         shap_analyzer = SHAPAnalyzer(
-            data_path=r"C:\Users\Administrator\Desktop\trainshap.xlsx",
-            output_dir=base_output_dir  # 传入顶层目录 'result'
+            data_path=PathConfig.DATA_PATH, # <== 引用更新为 PathConfig.DATA_PATH
+            output_dir=base_output_dir
         )
         shap_analyzer.analyze()
 
