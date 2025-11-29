@@ -13,7 +13,8 @@ class CorrelationAnalyzer:
     def analyze(self):
         """执行相关性分析"""
         # 数据加载
-        data = pd.read_excel(self.data_path, header=0)
+        # 修改：使用 read_csv
+        data = pd.read_csv(self.data_path, header=0)
 
         # 计算Pearson相关系数矩阵
         corr_matrix = data.corr(method='pearson')

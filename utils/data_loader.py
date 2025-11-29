@@ -1,14 +1,14 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-
 class DataLoader:
     def __init__(self, config):
         self.config = config
 
     def load_data(self):
         """加载数据"""
-        data = pd.read_excel(self.config.data_path, header=0)
+        # 修改：使用 read_csv 读取数据
+        data = pd.read_csv(self.config.data_path, header=0)
         print(f"数据形状: {data.shape}")
         print(f"数据列名: {data.columns.tolist()}")
         return data

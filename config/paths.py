@@ -4,8 +4,8 @@ BASE_OUTPUT_DIR = "result"
 
 
 class PathConfig:
-    # 新增: 将数据路径作为类属性
-    DATA_PATH = "data/dataset.xlsx"
+    # 修改：文件名更新为 dataset.csv
+    DATA_PATH = "data/dataset.csv"
 
     def __init__(self, model_name):
         self.model_name = model_name

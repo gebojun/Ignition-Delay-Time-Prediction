@@ -6,7 +6,6 @@ from tabpfn import TabPFNRegressor
 import numpy as np
 import os
 
-
 class SHAPAnalyzer:
     def __init__(self, data_path, output_dir):
         self.data_path = data_path
@@ -15,7 +14,8 @@ class SHAPAnalyzer:
     def analyze(self):
         """执行SHAP分析"""
         # 加载数据
-        data = pd.read_excel(self.data_path)
+        # 修改：使用 read_csv
+        data = pd.read_csv(self.data_path)
 
         # 数据准备
         X = data.iloc[:, 1:]
@@ -27,6 +27,7 @@ class SHAPAnalyzer:
         )
 
         # 训练模型（使用GPU）
+        # 注意：如果您没有Nvidia显卡，建议将 device='cuda' 改为 device='cpu'
         reg = TabPFNRegressor(device='cuda')
         reg.fit(X_train, y_train)
 
