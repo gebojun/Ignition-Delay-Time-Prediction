@@ -15,7 +15,6 @@ Ignition Delay Time Prediction (点火延迟时间预测)
 
 请确保你的 Python 环境（建议 Python 3.8+）已安装以下依赖库：
 
-```bash
 pip install pandas numpy scikit-learn matplotlib seaborn xgboost catboost lightgbm shap tabpfn openpyxl
 📂 目录结构Plaintext.
 ├── analysis/           # 数据分析模块 (Correlation, SHAP)
@@ -51,4 +50,4 @@ class XGBConfig(BaseModelConfig):
             'max_depth': [3, 5, 7],           # 修改树深度
             # ...
         }
-Created by [Your Name/Team Name]
+
