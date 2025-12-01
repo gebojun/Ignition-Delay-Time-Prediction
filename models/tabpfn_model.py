@@ -1,7 +1,7 @@
 from tabpfn import TabPFNRegressor
 from .base_model import BaseModel
 import numpy as np
-
+import pandas as pd
 
 class TabPFNModel(BaseModel):
     def __init__(self, config):

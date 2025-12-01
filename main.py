@@ -21,7 +21,11 @@ from analysis.shap_analysis import SHAPAnalyzer
 
 def main():
     """主函数"""
-    # ... (参数解析和 models_map 定义保持不变)
+    parser = argparse.ArgumentParser(description='点火延迟时间预测模型训练与评估')
+    parser.add_argument('--model', type=str, default='xgb',
+                        help='选择要运行的模型: xgb, catboost, lightgbm, rf, mlr, svm, tabpfn, ann')
+    parser.add_argument('--analysis', type=str, default='none',
+                        help='运行分析: none, correlation, shap, all')
 
     args = parser.parse_args()
 
@@ -45,7 +49,7 @@ def main():
     if args.analysis in ['correlation', 'all']:
         print("开始相关性分析...")
         correlation_analyzer = CorrelationAnalyzer(
-            data_path=PathConfig.DATA_PATH, # <== 引用更新为 PathConfig.DATA_PATH
+            data_path=PathConfig.DATA_PATH,
             output_dir=base_output_dir
         )
         correlation_analyzer.analyze()
@@ -53,22 +57,18 @@ def main():
     if args.analysis in ['shap', 'all']:
         print("开始SHAP分析...")
         shap_analyzer = SHAPAnalyzer(
-            data_path=PathConfig.DATA_PATH, # <== 引用更新为 PathConfig.DATA_PATH
+            data_path=PathConfig.DATA_PATH,
             output_dir=base_output_dir
         )
         shap_analyzer.analyze()
 
     # 运行指定的模型
-    # models_map 已经被定义并上移，这里只需要使用即可。
     if args.model in models_map:
         model_class, config_class, model_name = models_map[args.model]
         run_model(model_name, model_class, config_class)
     else:
         print(f"未知模型: {args.model}")
         print("可用模型: xgb, catboost, lightgbm, rf, mlr, svm, tabpfn, ann")
-
-
-# ... (run_model 和其它函数保持不变)
 
 
 def run_model(model_name, model_class, config_class):
@@ -82,8 +82,12 @@ def run_model(model_name, model_class, config_class):
     model_config = config_class()
     output_dir = path_config.create_model_dirs()
 
-    # 初始化组件
-    data_loader = DataLoader(path_config)
+    # 【修复】将 data_path 注入到 model_config 中
+    # 这样 DataLoader 既能找到数据文件，也能读取 test_size 等分割参数
+    model_config.data_path = path_config.data_path
+
+    # 初始化组件 - 【修复】使用 model_config 初始化
+    data_loader = DataLoader(model_config)
     preprocessor = Preprocessor()
     visualizer = Visualizer(output_dir)
 

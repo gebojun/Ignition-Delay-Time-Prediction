@@ -3,7 +3,7 @@ class BaseModelConfig:
         # 数据划分配置
         self.test_size = 0.2
         self.val_size = 0.25
-        self.random_state = 42
+        self.random_state = 41
         self.cv_folds = 5
 
         # 评分指标
@@ -19,17 +19,17 @@ class XGBConfig(BaseModelConfig):
         super().__init__()
         # 超参数网格
         self.param_grid = {
-    'n_estimators': [40, 50, 60, 80, 100, 150, 200, 300, 500],
-    'max_depth': [1, 3,5, 7, 10, 15],
-    'learning_rate': [0.01, 0.03, 0.05, 0.1, 0.15, 0.3,0.5],
-    'subsample': [0.4,0.6, 0.8,1]
+            'n_estimators': [5, 100],
+            'max_depth': [1, 10],
+            'learning_rate': [0.01, 0.5, 1],
+            'subsample': [ 0.4, 0.9 ]
         }
 
         # 固定参数
         self.fixed_params = {
             'colsample_bytree': 0.8,
             'random_state': 42,
-            'n_jobs':1
+            'n_jobs': 1
         }
 
         # 可视化配置
@@ -43,18 +43,19 @@ class XGBConfig(BaseModelConfig):
 class CatBoostConfig(BaseModelConfig):
     def __init__(self):
         super().__init__()
+        # 超参数网格
         self.param_grid = {
-            'iterations': [40,80,100,150, 200, 300],
-            'depth': [4, 6, 8, 10],
-            'learning_rate': [0.01, 0.05, 0.1, 0.3, 0.5,1],
-            'l2_leaf_reg': [1, 3, 5, 7, 9]
+            'iterations': [5, 10, 15, 20, 40, 50, 60, 80, 100, 150, 200, 300, 500, 600, 700,  900],
+            'depth': [4, 6, 8, 10, 12, 14, 16],
+            'learning_rate': [0.01, 0.02, 0.03, 0.1, 0.2, 0.3, 0.4, 0.5],
+            'l2_leaf_reg': [1, 3, 5, 7, 9, 12, 15, 18, 20]
         }
 
         # 固定参数
         self.fixed_params = {
             'random_seed': 42,
             'verbose': False,
-            'thread_count': 1
+            'thread_count': -1
         }
 
         # 可视化配置
@@ -70,17 +71,17 @@ class LightGBMConfig(BaseModelConfig):
         super().__init__()
         # 超参数网格
         self.param_grid = {
-            'n_estimators': [ 40, 60, 80, 100, 200, 300, 500],
-            'max_depth': [ 3, 4, 5, 6, 7, 8, 9, 10, 20],
-            'learning_rate': [0.01, 0.02, 0.03, 0.1, 0.4, 0.5, 0.6, 0.7, 1, 1.5],
-            'num_leaves': [5, 10, 12, 15, 18, 20]
+            'n_estimators': [5, 10, 15, 20, 40, 60, 80, 100, 200, 300, 500],
+            'max_depth': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20],
+            'learning_rate': [0.01, 0.02, 0.03, 0.1, 0.4, 0.5, 0.6, 0.7, 1, 1.5, 2],
+            'num_leaves': [5, 10, 12, 15, 18, 20, 22, 25]
         }
 
         # 固定参数
         self.fixed_params = {
             'subsample': 0.1,
             'random_state': 42,
-            'n_jobs': 1,
+            'n_jobs': -1,
             'verbose': -1
         }
 
@@ -99,15 +100,15 @@ class RFConfig(BaseModelConfig):
         self.param_grid = {
             'n_estimators': [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250, 300],
             'max_depth': [1, 3, 5, 10, 20, 30, 50, 100],
-            'min_samples_split': [3, 5, 8, 10],
-            'min_samples_leaf': [1, 2, 3, 4]
+            'min_samples_split': [3, 5, 8, 10, 15],
+            'min_samples_leaf': [1, 2, 3, 4, 5]
         }
 
         # 固定参数
         self.fixed_params = {
             'max_features': 'log2',
             'random_state': 42,
-            'n_jobs': 1
+            'n_jobs': -1
         }
 
         # 可视化配置
@@ -182,27 +183,20 @@ class TabPFNConfig(BaseModelConfig):
 class ANNConfig(BaseModelConfig):
     def __init__(self):
         super().__init__()
-        # ANN参数网格
-        # 修改：移除了 'activation'，现在只剩 3 个参数
+        # 优化后的ANN参数网格
         self.param_grid = {
-            'hidden_layer_sizes': [(50,), (100,), (50, 50), (100, 50),(100, 100),(150, 200),(200, 250)],
-            'alpha': [0.0001, 0.001, 0.01,0.1],
-            'learning_rate': [0.001, 0.01,0.05,0.1,0.5,1]
+            'hidden_layer_sizes': [(50,), (100,),(50, 25),(100, 50),(100, 100),(150, 200),(200, 200)],
+            'alpha': [0.00001, 0.0001, 0.001, 0.01, 0.1],  
+            'learning_rate_init': [0.001, 0.01,0.01]  
         }
 
-        # 固定参数
+        # 固定参数 - 修复验证策略冲突
         self.fixed_params = {
             'random_state': 42,
-            'early_stopping': True,
-            'n_iter_no_change': 50,
+            'early_stopping': False,      
+            'solver': 'lbfgs',            
+            'activation': 'relu',         
+            'max_iter': 1000,             
+            'tol': 1e-4,                  
             'verbose': False,
-            'max_iter': 5000,
-            'activation': 'relu'
-        }
-
-        # 可视化配置 (保持之前修复的 colors)
-        self.colors = {
-            'primary': '#1f77b4',
-            'secondary': '#2ca02c',
-            'feature_importance': '#e377c2'
         }
